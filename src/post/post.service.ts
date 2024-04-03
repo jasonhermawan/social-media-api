@@ -15,8 +15,9 @@ export class PostService {
   async getPosts(query: GetPostsDto) {
     const { userid } = query;
     const posts = await this.prisma.post.findMany({
-      where: {
-        userId: Number(userid),
+      where: { ...(userid ? { userId: Number(userid) } : {}) },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
     return posts;
@@ -31,7 +32,7 @@ export class PostService {
         uuid: uuidv4(),
         userId: tokenData.sub,
         caption: createPostDto.caption,
-        picture: picture.filename,
+        ...(picture ? { picture: picture.filename } : {}),
       },
     });
     return post;
