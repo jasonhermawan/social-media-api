@@ -4,6 +4,8 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { GetPostsDto } from './dto/get-posts.dto';
+import { PostCommentDto } from './dto/post-comment.dto';
+import { GetPostCommentsDto } from './dto/get-post-comments.dto';
 
 @Injectable()
 export class PostService {
@@ -40,6 +42,45 @@ export class PostService {
         },
       });
       return post;
+    } else {
+      throw new HttpException('Not Acceptable', HttpStatus.NOT_ACCEPTABLE);
+    }
+  }
+
+  async getPostComments(query: GetPostCommentsDto) {
+    const { id, postid, userid } = query;
+    const comments = await this.prisma.comment.findMany({
+      where: {
+        ...(id ? { id: Number(id) } : {}),
+        ...(postid ? { postId: Number(postid) } : {}),
+        ...(userid ? { userId: Number(userid) } : {}),
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+    return comments;
+  }
+
+  async commentPost(
+    token: string,
+    postId: string,
+    postCommentDto: PostCommentDto,
+    picture?: any,
+  ) {
+    const tokenData = this.jwt.verify(token, {
+      secret: process.env.SCRT_TKN,
+    });
+    if (postCommentDto.caption || picture) {
+      const comment = await this.prisma.comment.create({
+        data: {
+          userId: tokenData.sub,
+          postId: Number(postId),
+          caption: postCommentDto.caption,
+          ...(picture ? { picture: picture.filename } : {}),
+        },
+      });
+      return comment;
     } else {
       throw new HttpException('Not Acceptable', HttpStatus.NOT_ACCEPTABLE);
     }

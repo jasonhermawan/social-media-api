@@ -9,6 +9,9 @@ import { JwtModule } from '@nestjs/jwt';
     MulterModule.register({
       dest: './post-images',
     }),
+    MulterModule.register({
+      dest: './post-comment-images',
+    }),
     JwtModule,
   ],
   providers: [PostService],

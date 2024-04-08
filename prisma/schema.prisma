@@ -40,10 +40,6 @@ model Post {
   userId         Int
   caption        String?
   picture        String?
-  // authorEmail    String
-  // authorName     String?
-  // authorUsername String
-  // authorPicture  String?
   deletedAt      DateTime?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt

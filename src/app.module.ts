@@ -19,6 +19,10 @@ import { join } from 'path';
       serveRoot: '/post-images',
     }),
     ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'post-comment-images'),
+      serveRoot: '/post-comment-images',
+    }),
+    ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'user-profile-images'),
       serveRoot: '/user-profile-images',
     }),

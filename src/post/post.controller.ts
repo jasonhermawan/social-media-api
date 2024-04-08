@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  Param,
   Post,
   Query,
   UploadedFile,
@@ -16,6 +17,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
+import { PostCommentDto } from './dto/post-comment.dto';
+import { GetPostCommentsDto } from './dto/get-post-comments.dto';
 
 @Controller('post')
 export class PostController {
@@ -48,5 +51,35 @@ export class PostController {
   ) {
     const token = header.authorization.split(' ')[1];
     return await this.postService.createPost(token, body, file);
+  }
+
+  @Get('/comment')
+  async getPostComments(@Query() query: GetPostCommentsDto) {
+    return await this.postService.getPostComments(query);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('/comment/:postid')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './post-comment-images',
+        filename: (req, file, callback) => {
+          const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const ext = extname(file.originalname);
+          const filename = `${file.originalname}-${suffix}${ext}`;
+          callback(null, filename);
+        },
+      }),
+    }),
+  )
+  async commentPost(
+    @Headers() header,
+    @Param('postid') postId: string,
+    @Body() body: PostCommentDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const token = header.authorization.split(' ')[1];
+    return await this.postService.commentPost(token, postId, body, file);
   }
 }
