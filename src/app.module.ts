@@ -18,6 +18,14 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'post-images'),
       serveRoot: '/post-images',
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'user-profile-images'),
+      serveRoot: '/user-profile-images',
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'user-banner-images'),
+      serveRoot: '/user-banner-images',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

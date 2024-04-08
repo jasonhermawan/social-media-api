@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,9 +13,12 @@ export class PostService {
   ) {}
 
   async getPosts(query: GetPostsDto) {
-    const { userid } = query;
+    const { userid, id } = query;
     const posts = await this.prisma.post.findMany({
-      where: { ...(userid ? { userId: Number(userid) } : {}) },
+      where: {
+        ...(id ? { id: Number(id) } : {}),
+        ...(userid ? { userId: Number(userid) } : {}),
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -27,14 +30,18 @@ export class PostService {
     const tokenData = this.jwt.verify(token, {
       secret: process.env.SCRT_TKN,
     });
-    const post = await this.prisma.post.create({
-      data: {
-        uuid: uuidv4(),
-        userId: tokenData.sub,
-        caption: createPostDto.caption,
-        ...(picture ? { picture: picture.filename } : {}),
-      },
-    });
-    return post;
+    if (createPostDto.caption || picture) {
+      const post = await this.prisma.post.create({
+        data: {
+          uuid: uuidv4(),
+          userId: tokenData.sub,
+          caption: createPostDto.caption,
+          ...(picture ? { picture: picture.filename } : {}),
+        },
+      });
+      return post;
+    } else {
+      throw new HttpException('Not Acceptable', HttpStatus.NOT_ACCEPTABLE);
+    }
   }
 }

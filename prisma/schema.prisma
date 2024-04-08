@@ -17,9 +17,11 @@ model User {
   id         Int        @id @default(autoincrement())
   uuid       String
   email      String
+  name       String?
   username   String
   password   String
   picture    String?
+  banner     String?
   isVerified Boolean
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -32,18 +34,22 @@ model User {
 }
 
 model Post {
-  id        Int        @id @default(autoincrement())
-  uuid      String
-  user      User       @relation(fields: [userId], references: [id])
-  userId    Int
-  caption   String?
-  picture   String?
-  deletedAt DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Comment   Comment[]
-  PostLike  PostLike[]
-  PostSave  PostSave[]
+  id             Int        @id @default(autoincrement())
+  uuid           String
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int
+  caption        String?
+  picture        String?
+  // authorEmail    String
+  // authorName     String?
+  // authorUsername String
+  // authorPicture  String?
+  deletedAt      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  Comment        Comment[]
+  PostLike       PostLike[]
+  PostSave       PostSave[]
 
   @@map("posts")
 }

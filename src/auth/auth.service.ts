@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
 
   async register(registerDTO: RegisterDTO) {
-    const { username, email, password } = registerDTO;
+    const { name, username, email, password } = registerDTO;
 
     const isUserExist = await this.prisma.user.findFirst({
       where: { OR: [{ username }, { email }] },
@@ -37,6 +37,7 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: {
         uuid: uuidv4(),
+        name,
         username,
         email,
         password: hashPassword,
@@ -71,6 +72,7 @@ export class AuthService {
       id: user.id,
       uuid: user.uuid,
       email: user.email,
+      name: user.name,
       username: user.username,
       token: (await token).toString(),
     };
@@ -85,5 +87,15 @@ export class AuthService {
       expiresIn: '1h',
       secret: process.env.SCRT_TKN,
     });
+  }
+
+  async verifyToken(token: string) {
+    try {
+      return await this.jwt.verify(token, {
+        secret: process.env.SCRT_TKN,
+      });
+    } catch (error) {
+      return false;
+    }
   }
 }
